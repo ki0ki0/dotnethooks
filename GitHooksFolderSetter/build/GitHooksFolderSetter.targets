@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <GitCmd>git</GitCmd>
+    <SetMarkerName>git-hook-folder.set</SetMarkerName>
+    <Skip Condition="'$(CI)' != ''">true</Skip>
+    <Skip Condition="'$(CI)' == ''">false</Skip>
+  </PropertyGroup>
+
+  <Target Name="_GitRoot" Condition="!$(Skip)">
+    <Exec Command='$(GitCmd) rev-parse --show-toplevel' ConsoleToMSBuild='true' ContinueOnError='true'>
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitOutput" />
+      <Output TaskParameter="ExitCode" PropertyName="MSBuildLastExitCode" />
+    </Exec>
+    <Error Condition="'$(MSBuildLastExitCode)' != '0'" Text="Detection of '.git' folder location failed. Git is not installed?" />
+
+    <PropertyGroup Condition="'$(MSBuildLastExitCode)' == '0'">
+      <GitRoot>$([MsBuild]::NormalizeDirectory($(_GitOutput.Trim())))</GitRoot>
+    </PropertyGroup>
+  </Target>
+  
+  <!-- Create variable for set maker location -->
+  <Target Name="OutputSetMarkerLocation" DependsOnTargets="_GitRoot" BeforeTargets="Compile" Condition="!($(Skip))">
+    <CombinePath BasePath="$(GitRoot).git" Paths="$(SetMarkerName)">
+      <Output TaskParameter="CombinedPaths" PropertyName="SetMarkerLocation" />
+    </CombinePath>
+   </Target>
+
+  <Target Name="SetHooksFoler" AfterTargets="OutputSetMarkerLocation" Condition="!Exists($(SetMarkerLocation)) And !($(Skip))">
+
+    <!-- Set custom hooks folder -->
+    <Exec Command="$(GitCmd) config core.hooksPath $(HooksPath)" ConsoleToMsBuild="true">
+      <Output TaskParameter="ExitCode" PropertyName="MSBuildLastExitCode" />
+    </Exec>
+    <Error Condition="'$(MSBuildLastExitCode)' != '0'" Text="Set custom hooks folder failed" />
+
+    <!-- Create set maker file if not exists -->
+    <WriteLinesToFile File="$(SetMarkerLocation)" Condition="!Exists($(SetMarkerLocation))" />
+  </Target>
+</Project>

@@ -5,11 +5,11 @@
     
     <IsPackable>true</IsPackable>
     <Version>1.0.0</Version>
-    <Authors>Nagarian</Authors>
-    <Description>Use git custom hooks into your project</Description>
+    <Authors>Ihor Kostiuk</Authors>
+    <Description>Set git hooks location to custom folder</Description>
     <PackageTags>git;git hooks;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/Nagarian/dotnethooks/</RepositoryUrl>
+    <RepositoryUrl>https://github.com/ki0ki0/githooks-folder-setter/</RepositoryUrl>
     <DevelopmentDependency>true</DevelopmentDependency>
 
     <IncludeBuildOutput>false</IncludeBuildOutput>
